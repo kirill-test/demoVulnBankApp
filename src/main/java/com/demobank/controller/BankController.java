@@ -3,6 +3,7 @@ package com.demobank.controller;
 import com.demobank.entity.User;
 import com.demobank.entity.Account;
 import com.demobank.entity.CreditApplication;
+import com.demobank.entity.Transaction;
 import com.demobank.service.BankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -184,6 +185,49 @@ public class BankController {
         model.addAttribute("searchTerm", searchTerm);
         model.addAttribute("results", results);
         return "search";
+    }
+
+    @GetMapping("/transactions")
+    public String transactionsPage(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("user", user);
+        return "transactions";
+    }
+
+    @PostMapping("/transactions")
+    public String searchTransactions(
+            @RequestParam(required = false) String minAmount,
+            @RequestParam(required = false) String maxAmount,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String[] types,
+            HttpSession session,
+            Model model) {
+
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        List<Transaction> results = bankService.searchTransactions(
+            user.getId().toString(), minAmount, maxAmount, startDate, endDate, description, types
+        );
+
+        model.addAttribute("user", user);
+        model.addAttribute("results", results);
+        model.addAttribute("minAmount", minAmount);
+        model.addAttribute("maxAmount", maxAmount);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("description", description);
+        model.addAttribute("types", types);
+
+        return "transactions";
     }
     
     @GetMapping("/logout")
