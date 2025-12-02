@@ -28,6 +28,7 @@
             <p style="color: #666; margin-bottom: 2rem;">Search through credit card applications by employment status or comments</p>
             
             <form th:action="@{/search}" method="post" style="margin-bottom: 2rem;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div style="display: flex; gap: 1rem; align-items: end;">
                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                         <label for="searchTerm">Search Term:</label>

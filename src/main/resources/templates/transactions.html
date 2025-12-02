@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DemoBank - Transactions</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🏦 DemoBank</div>
+            <nav class="nav">
+                <a th:href="@{/dashboard}">Dashboard</a>
+                <a th:href="@{/accounts}">Accounts</a>
+                <a th:href="@{/transfer}">Transfer</a>
+                <a th:href="@{/credit-application}">Credit Card</a>
+                <a th:href="@{/search}">Search</a>
+                <!-- some manual changes here -->
+                <a th:href="@{/transactions}" style="color: #123123; font-weight: bold;">Transactions</a>
+                <span th:text="'WELCOME, ' + ${user.firstName}"></span>
+                <a th:href="@{/logout}">Logout</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="margin-bottom: 0.5rem;">📄 Transaction History</h1>
+            <p style="color: #666; margin-bottom: 1rem;">Search your transactions by amount, date range, description, or type.</p>
+
+            <form th:action="@{/transactions}" method="post">
+                <div class="filters" style="margin-bottom: 1rem;">
+                    <div>
+                        <label for="minAmount">Min Amount</label>
+                        <input type="number" step="0.01" id="minAmount" name="minAmount" class="form-control" th:value="${minAmount}">
+                    </div>
+                    <div>
+                        <label for="maxAmount">Max Amount</label>
+                        <input type="number" step="0.01" id="maxAmount" name="maxAmount" class="form-control" th:value="${maxAmount}">
+                    </div>
+                    <div>
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate" name="startDate" class="form-control" th:value="${startDate}">
+                    </div>
+                    <div>
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate" name="endDate" class="form-control" th:value="${endDate}">
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" name="description" class="form-control" placeholder="Search description..." th:value="${description}">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label>Transaction Types</label>
+                    <div style="display:flex; gap: 1rem; margin-top: 0.5rem;">
+                        <label><input type="checkbox" name="types" value="TRANSFER" th:checked="${#lists.contains(types, 'TRANSFER')}"> Transfer</label>
+                        <label><input type="checkbox" name="types" value="DEPOSIT" th:checked="${#lists.contains(types, 'DEPOSIT')}"> Deposit</label>
+                        <label><input type="checkbox" name="types" value="WITHDRAWAL" th:checked="${#lists.contains(types, 'WITHDRAWAL')}"> Withdrawal</label>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap: 1rem; align-items: center;">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a th:href="@{/transactions}" class="btn">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div th:if="${results}" class="card">
+            <h2 style="margin-bottom: 1rem;">Results</h2>
+            <div th:if="${#lists.isEmpty(results)}" style="text-align:center; padding:1.5rem; color:#666;">
+                <h3>No transactions found</h3>
+                <p>Adjust filters to broaden your search.</p>
+            </div>
+            <div th:if="${!#lists.isEmpty(results)}">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Account ID</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="tx : ${results}">
+                            <td th:text="${tx.id}"></td>
+                            <td th:text="${tx.accountId}"></td>
+                            <td th:text="${tx.type}"></td>
+                            <td th:text="' $' + ${#numbers.formatDecimal(tx.amount, 0, 'COMMA', 2, 'POINT')} "></td>
+                            <td th:text="${tx.description ?: '-'}"></td>
+                            <td th:text="${tx.transactionDate}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
